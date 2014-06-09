@@ -1,6 +1,5 @@
 © Fabian Lenczewski, 2013 (http://fabian.art.pl)
 
-
 Kabanos
 =======
 
