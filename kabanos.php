@@ -1,22 +1,24 @@
 /**
  * Kabanos
+ * Antyflood protection (request limiter for selected time intervals) eg. 100req/60s and 200req/5m and 500req/1h
  * 
- * Funkcjonalność
- * ~~~~~~~~~~~~~~
+ * Functionality
+ * ~~~~~~~~~~~~~
  *  
- *  a. zliczanie ilości requestów w funckji czasu (1h, 24h)
- *  b. automatycznie blokowanie (na określony czas) po przekroczeniu granicznych wartośći
- *  c. próba identyfikacji użytkownika (anonimowego) 
+ *  # hit counting in sample time (eg. 10s, 1h, 24h)
+ *  # info about exceeded the limits
+ *  # try to identify the user (anonymous)
  *  
- * Konfiguracja
- * ~~~~~~~~~~~~
+ *
+ * Config
+ * ~~~~~~
  * 
- * $type = array('limit' => array(10 => 5, 60 => 10, 3600 => 20) );
- *      $type - typ obiektu
+ * $type = array('limit' => array(60 => 100, 300 => 200, 3600 => 500) );
+ *      $type - object type
  *      limit 
- *          10 sek - 5 req
- *          60 sek - 10 req
- *          3600 sek - 20 req
+ *          100req / 60s
+ *          200req / 5m (300s)
+ *          500req / 1h (3600s)
  * 
  * 
  * @author  Fabian Lenczewski <fabian.lenczewski@gmail.com>
@@ -31,20 +33,29 @@ class Kabanos
     {
     }   
 
-    // próba identyfikacji użytkownika
-    private static function _getFingerprint()
+    /**
+     * Trying to identify the user (anonymous)
+     *
+     * @return string 
+     */
+    private static function _getUserFingerprint()
     {
+        return md5($_SERVER['REMOTE_ADDR'] . $_SERVER['HTTP_USER_AGENT']);
     }
+
     
-    // pobranie limitów    
-    // public static function getConfig()
-    // {
-    // }
-    
-    
-    // weryfikacja + większenie licznika
+    /**
+     * verification and inc counter
+     *
+     * @return true
+     */
     public static function check($user = null, $type = null, $config = null)
     {
+        if( !$user ) {
+            $user = self::_getUserFingerprint();
+        }
+
+        return true;
     }
 
     
