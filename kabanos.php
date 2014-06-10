@@ -47,6 +47,9 @@ class Kabanos
     /**
      * verification and inc counter
      *
+     * @param string $user   - id, name or something else eg, hash
+     * @param string $type   - label of object type limit (eg. "add-post", "get-userInfo" etc)
+     * @param array  $config - eg. array(60 => 5, 300 => 10) // seconds => limitCount  
      * @return true
      */
     public static function check($user = null, $type = null, $config = null)
