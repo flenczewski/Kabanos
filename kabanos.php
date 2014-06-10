@@ -47,16 +47,20 @@ class Kabanos
     /**
      * verification and inc counter
      *
-     * @param string $user   - id, name or something else eg, hash
      * @param string $type   - label of object type limit (eg. "add-post", "get-userInfo" etc)
      * @param array  $config - eg. array(60 => 5, 300 => 10) // seconds => limitCount  
+     * @param string $user   - id, name or something else eg, hash
+     *
      * @return true
      */
-    public static function check($user = null, $type = null, $config = null)
+    public static function check($type, $config = null, $user = null)
     {
         if( !$user ) {
             $user = self::_getUserFingerprint();
         }
+
+        $keyPattern = self::KEY_PREFIX .':'. $type .':'. $user; // .':'. $second;
+
 
         return true;
     }
