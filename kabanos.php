@@ -26,7 +26,7 @@
  */
 class Kabanos
 {
-    const KEY_PREFIX  = 'banos';
+    const KEY_PREFIX  = 'ban';
 
     // redis connection
     private static function _getDb()
