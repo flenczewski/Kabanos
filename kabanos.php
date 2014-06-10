@@ -28,7 +28,7 @@ class Kabanos
 {
     const KEY_PREFIX  = 'banos';
 
-    // pobranie konfiguracji bazy danych
+    // redis connection
     private static function _getDb()
     {
     }   
