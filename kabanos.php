@@ -35,7 +35,7 @@ class Kabanos
         $config['port']      = 6379;
         $config['database']  = 0;
 
-        return Redis::getInstance($config);
+        return DbRedis::getInstance($config);
     }   
 
     /**
