@@ -31,9 +31,10 @@ class Kabanos
     // redis connection
     private static function _getDb()
     {
-        $config['host']      = 'localhost';
-        $config['port']      = 6379;
-        $config['database']  = 0;
+        $config  = array();
+        $config['host'] = 'localhost';
+        $config['port'] = 6379;
+        $config['database'] = 0;
 
         return DbRedis::getInstance($config);
     }   
@@ -60,6 +61,8 @@ class Kabanos
      */
     public static function check($type, $config = null, $user = null)
     {
+        $error = array();
+        
         if( !$user ) {
             $user = self::_getUserFingerprint();
         }
