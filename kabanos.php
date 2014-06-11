@@ -31,6 +31,11 @@ class Kabanos
     // redis connection
     private static function _getDb()
     {
+        $config['host']      = 'localhost';
+        $config['port']      = 6379;
+        $config['database']  = 0;
+
+        return Redis::getInstance($config);
     }   
 
     /**
@@ -59,8 +64,26 @@ class Kabanos
             $user = self::_getUserFingerprint();
         }
 
-        $keyPattern = self::KEY_PREFIX .':'. $type .':'. $user; // .':'. $second;
+        $uid = substr((uniqid()), -8);
+        foreach($config as $second => $limit) {
 
+            $keyPattern = self::KEY_PREFIX .':'. $type .':'. $user .':'. $second ;
+
+            // add data to redis
+            $res = self::_getDb()->multi(Redis::PIPELINE)
+                                ->set($keyPattern .':'. $uniqId, 1)  // add key to db
+                                ->setTimeout($keyPattern .':'. $uniqId, $second) // set TTL
+                                ->keys($keyPattern .':*') // get key list matching to pattern
+                                ->exec();
+
+            // limit verify
+            $count = isset($res[2]) ? count($res[2]) : count(self::_getDb()->keys($keyPattern .':*'));
+
+            if($count > $limit) {
+                // limit was exceeded
+                $error[] = $second .':'. $limit .':'. $count;
+            }
+        }
 
         return true;
     }
