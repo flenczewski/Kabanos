@@ -1,3 +1,4 @@
+<?php
 /**
  * Kabanos
  * Antyflood protection (request limiter for selected time intervals) eg. 100req/60s and 200req/5m and 500req/1h
@@ -36,7 +37,13 @@ class Kabanos
         $config['port'] = 6379;
         $config['database'] = 0;
 
-        return DbRedis::getInstance($config);
+        $db = new \Redis;
+        $db->connect($config['host'], $config['port']);
+        if(isset($config['database'])) {
+            $db->select($config['database']);
+        }
+
+        return $db;
     }   
 
     /**
@@ -57,7 +64,7 @@ class Kabanos
      * @param array  $config - eg. array(60 => 5, 300 => 10) // seconds => limitCount  
      * @param string $user   - id, name or something else eg, hash
      *
-     * @return true
+     * @return false || array
      */
     public static function check($type, $config = null, $user = null)
     {
@@ -67,7 +74,7 @@ class Kabanos
             $user = self::_getUserFingerprint();
         }
 
-        $uid = substr((uniqid()), -8);
+        $uniqId = substr((uniqid()), -8);
         foreach($config as $second => $limit) {
 
             $keyPattern = self::KEY_PREFIX .':'. $type .':'. $user .':'. $second ;
@@ -82,13 +89,28 @@ class Kabanos
             // limit verify
             $count = isset($res[2]) ? count($res[2]) : count(self::_getDb()->keys($keyPattern .':*'));
 
+            // limit was exceeded
             if($count > $limit) {
-                // limit was exceeded
-                $error[] = $second .':'. $limit .':'. $count;
+                $error[$second] = $count .':'. $limit;
             }
         }
 
-        return true;
+        return count($error) > 0 ? $error : false;
+    }
+
+
+    public static function removeBan($type, $second, $user = null) {
+
+        if( !$user ) {
+            $user = self::_getUserFingerprint();
+        }
+
+        $keyPattern = self::KEY_PREFIX .':'. $type .':'. $user .':'. $second ;
+
+        $keys = self::_getDb()->keys($keyPattern .':*');
+        foreach($keys as $key) {
+            self::_getDb()->del($key);
+        }
     }
 
     
